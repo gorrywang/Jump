@@ -215,6 +215,7 @@ public class SplashActivity extends AppCompatActivity {
         //最后的时间
         mEndTime = System.currentTimeMillis();
         final long time = mEndTime - mStartTime;
+        BasicUtils.printLog("前后时间：" + time);
         if (time < 3000) {
             new Thread() {
                 @Override
@@ -232,8 +233,9 @@ public class SplashActivity extends AppCompatActivity {
                             if (BasicUtils.firstRun(SplashActivity.this)) {
                                 //第一次运行
                                 intent.setClass(SplashActivity.this, GuideActivity.class);
+                            } else {
+                                intent.setClass(SplashActivity.this, MainActivity.class);
                             }
-                            intent.setClass(SplashActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
                         }
@@ -245,8 +247,9 @@ public class SplashActivity extends AppCompatActivity {
             if (BasicUtils.firstRun(SplashActivity.this)) {
                 //第一次运行
                 intent.setClass(SplashActivity.this, GuideActivity.class);
+            } else {
+                intent.setClass(SplashActivity.this, MainActivity.class);
             }
-            intent.setClass(SplashActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
