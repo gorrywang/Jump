@@ -134,7 +134,7 @@ public class ShowActivity extends AppCompatActivity {
             startActivity(intent);
             Toast.makeText(ShowActivity.this, "导入成功", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Toast.makeText(ShowActivity.this, "请安装SSR软件", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ShowActivity.this, "请点击主页的小飞机安装SSR", Toast.LENGTH_SHORT).show();
         }
     }
 

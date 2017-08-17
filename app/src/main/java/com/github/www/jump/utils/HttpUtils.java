@@ -47,7 +47,7 @@ public class HttpUtils {
                     final Connection.Response response = Jsoup.connect(url)
                             .data(maps)
                             .method(Connection.Method.POST)
-                            .timeout(50000)
+                            .timeout(5000)
                             .execute();
                     activity.runOnUiThread(new Runnable() {
                         @Override

@@ -49,4 +49,35 @@ public class BasicUtils {
         }
         return is;
     }
+
+    /**
+     * 获取数据是否存在
+     *
+     * @param context 上下文
+     * @param key     问题
+     * @return 密码
+     */
+    public static String getValue(Context context, String key) {
+        SharedPreferences sp = context.getSharedPreferences("data", Context.MODE_PRIVATE);
+        return sp.getString(key, "jump");
+    }
+
+    /**
+     * 保存密码
+     *
+     * @param context 上下文
+     * @param key     问题
+     * @param value   密码
+     */
+    public static void setValue(Context context, String key, String value) {
+        SharedPreferences sp = context.getSharedPreferences("data", Context.MODE_PRIVATE);
+        String data = sp.getString(key, "jump");
+        if (data.equals(value)) {
+            //不用保存
+        } else {
+            SharedPreferences.Editor edit = sp.edit();
+            edit.putString(key, value);
+            edit.commit();
+        }
+    }
 }

@@ -1,6 +1,8 @@
 package com.github.www.jump.activity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -30,6 +32,7 @@ import com.github.www.jump.utils.PrivateUtils;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.trycatch.mysnackbar.Prompt;
 import com.trycatch.mysnackbar.TSnackbar;
+import com.victor.loading.rotate.RotateLoading;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -50,12 +53,16 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private MyAdapter mAdapter;
     private ActionBar mActionBar;
+    private RotateLoading mRotateLoading;
+    //提问的问题
+    private String mText;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 1:
                     //更新数据完毕，显示数据
+                    mRotateLoading.stop();
                     mBeen = new ArrayList<>(mBack);
                     initAdapter();
                     break;
@@ -98,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 //获取密码失败，暂时不可用
+                Toast.makeText(MainActivity.this, "网络状况不好即将退出", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
             }
 
             @Override
@@ -106,7 +116,18 @@ public class MainActivity extends AppCompatActivity {
                 Document document = Jsoup.parse(responseString);
                 Element problem = document.getElementById("problem");
                 String text = problem.text();
-                showDialog(text);
+                //问题代表key
+                String value = BasicUtils.getValue(MainActivity.this, text);
+                mText = text;
+                if (value.equals("jump")) {
+                    //无数据，提问
+                    showDialog(text);
+                } else {
+                    //密码就是value
+                    PrivateUtils.PASS_VALUE = value;
+                    //直接获取数据
+                    getData();
+                }
             }
         });
     }
@@ -117,10 +138,12 @@ public class MainActivity extends AppCompatActivity {
      * @param text 问题
      */
     private void showDialog(String text) {
+        //保存问题
+
         final EditText editText = new EditText(MainActivity.this);
         editText.setSingleLine();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("验证:  " + text).setView(editText).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        builder.setMessage("验证:  " + text).setView(editText).setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String data = editText.getText().toString();
@@ -141,16 +164,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void error(Exception e) {
                 //未获取到数据
-                Toast.makeText(MainActivity.this, "未获取到数据", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "获取数据失败，正在重试", Toast.LENGTH_SHORT).show();
+                getData();
+                return;
             }
 
             @Override
             public void success(String data) {
                 if (data.equals("-1")) {
-                    Toast.makeText(MainActivity.this, "未获取到数据", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "未获取到数据,正在重试", Toast.LENGTH_SHORT).show();
+                    getData();
                     return;
                 }
-                //获取到数据
                 //解析
                 document(data);
             }
@@ -177,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
                     resolution(tds);
                 }
             }
+            //证明密码正确，保存
+            BasicUtils.setValue(MainActivity.this, mText, PrivateUtils.PASS_VALUE);
             //更新完毕★★★
             mHandler.sendEmptyMessage(1);
 
@@ -329,15 +356,18 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.main_menu_ssr:
                 //安装ssr
-                Toast.makeText(MainActivity.this, "安装SSR", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "浏览器下载SSR软件", Toast.LENGTH_SHORT).show();
+                downloadSSR();
                 break;
 
             case R.id.main_menu_use:
                 //使用说明
+                showUseDialog();
                 break;
 
             case R.id.main_menu_wo:
                 //关于我们
+                showMeDialog();
                 break;
 
             case R.id.main_menu_all:
@@ -387,6 +417,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * 使用说明
+     */
+    private void showUseDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("关于我们").setMessage("a.点击标题栏小飞机即可下载SSR\nb.安装SSR\nc.在本软件上选择一个节点，点击导入SS即可")
+                .setPositiveButton("好", null).setCancelable(false).show();
+    }
+
+    /**
+     * 下载ssr
+     */
+    private void downloadSSR() {
+        Intent intent = new Intent("android.intent.action.VIEW");
+        intent.setData(Uri.parse("http:https://github.com/shadowsocksr-backup/shadowsocksr-android/releases/download/3.4.0.8/shadowsocksr-release.apk"));
+        startActivity(intent);
+    }
+
+    /**
+     * 关于我们
+     */
+    private void showMeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("关于我们").setMessage("只是方便自己获取数据\n没有冒犯之心\n获取网站来自doub.io")
+                .setPositiveButton("好", null).setCancelable(false).show();
+    }
+
+    /**
      * 获取每个地区的ss
      *
      * @param i 参数
@@ -409,6 +466,8 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         mToolbar = (Toolbar) findViewById(R.id.ac_main_bar_title);
         mRecyclerView = (RecyclerView) findViewById(R.id.ac_main_recycler_show);
+        mRotateLoading = (RotateLoading) findViewById(R.id.ac_main_load);
+        mRotateLoading.start();
     }
 
     /**
@@ -461,7 +520,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 
 
 }

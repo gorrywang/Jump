@@ -33,6 +33,7 @@ import com.google.gson.Gson;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.trycatch.mysnackbar.Prompt;
 import com.trycatch.mysnackbar.TSnackbar;
+import com.victor.loading.rotate.RotateLoading;
 
 import java.io.File;
 
@@ -49,6 +50,7 @@ public class SplashActivity extends AppCompatActivity {
     private int mNowVersion;
     //广播
     private MyCast mMyCast;
+    private RotateLoading mLoading;
 
     private DownloadService.MyBinder mBinder;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -83,7 +85,12 @@ public class SplashActivity extends AppCompatActivity {
      */
     private void initView() {
         mTextJump = (TextView) findViewById(R.id.ac_splash_txt_jump);
+        mLoading = (RotateLoading) findViewById(R.id.ac_splash_load);
+        mLoading.start();
     }
+
+    //为获取到version文件5次，就代表网络未连接
+    private int mCount = 0;
 
     //联网获取版本
     private void getOnlineVersion() {
@@ -91,7 +98,27 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 BasicUtils.printLog("未获取到version文件");
-//                TSnackbar.make(mTextJump, "网络未连接,禁止登陆", TSnackbar.LENGTH_LONG, TSnackbar.APPEAR_FROM_TOP_TO_DOWN).setPromptThemBackground(Prompt.WARNING).show();
+                if (mCount == 2) {
+                    TSnackbar.make(mTextJump, "网络未连接,3秒后退出程序", TSnackbar.LENGTH_LONG, TSnackbar.APPEAR_FROM_TOP_TO_DOWN).setPromptThemBackground(Prompt.WARNING).show();
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                sleep(3000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    finish();
+                                }
+                            });
+                        }
+                    }.start();
+                    return;
+                }
+                mCount++;
                 getOnlineVersion();
                 return;
             }
