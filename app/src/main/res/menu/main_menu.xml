@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/main_menu_ssr"
+        android:icon="@mipmap/ic_launcher"
+        android:title="下载SSR"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/main_menu_use"
+        android:icon="@mipmap/ic_launcher"
+        android:title="使用说明"
+        app:showAsAction="always" />
+    <item
+        android:title="选择地区"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/main_menu_all"
+                android:icon="@drawable/sm_all"
+                android:title="全部" />
+            <item
+                android:id="@+id/main_menu_cn"
+                android:icon="@drawable/sm_cn"
+                android:title="中国" />
+            <item
+                android:id="@+id/main_menu_usa"
+                android:icon="@drawable/sm_usa"
+                android:title="美国" />
+            <item
+                android:id="@+id/main_menu_jp"
+                android:icon="@drawable/sm_jp"
+                android:title="日本" />
+            <item
+                android:id="@+id/main_menu_can"
+                android:icon="@drawable/sm_can"
+                android:title="加拿大" />
+            <item
+                android:id="@+id/main_menu_sing"
+                android:icon="@drawable/sm_sing"
+                android:title="新加坡" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/main_menu_wo"
+        android:icon="@mipmap/ic_launcher"
+        android:title="关于我们"
+        app:showAsAction="never" />
+</menu>

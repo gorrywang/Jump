@@ -47,12 +47,17 @@ public class HttpUtils {
                     final Connection.Response response = Jsoup.connect(url)
                             .data(maps)
                             .method(Connection.Method.POST)
-                            .timeout(20000)
+                            .timeout(50000)
                             .execute();
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            listener.success(response.body().toString());
+                            String s = response.body().toString();
+                            if (s != null) {
+                                listener.success(s);
+                            } else {
+                                listener.success("-1");
+                            }
                         }
                     });
                 } catch (final IOException e) {
